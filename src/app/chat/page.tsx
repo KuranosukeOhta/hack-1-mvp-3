@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Message } from '@/types';
@@ -24,7 +23,7 @@ export default function ChatPage() {
   const [showTimeUpDialog, setShowTimeUpDialog] = useState(false);
   const [showGenerationLoading, setShowGenerationLoading] = useState(false);
   const [isExtendedMode, setIsExtendedMode] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // タイマー機能
   useEffect(() => {
@@ -63,12 +62,7 @@ export default function ChatPage() {
 
   // 自動スクロール
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
-      }
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const sendMessage = async () => {
@@ -183,7 +177,7 @@ export default function ChatPage() {
 
   return (
     <div className="h-[100dvh] bg-gradient-to-b from-orange-50 to-pink-50 flex flex-col">
-      {/* Fixed Header - 高さを明確に定義 */}
+      {/* Fixed Header */}
       <div className="h-[90px] flex-shrink-0 bg-white/90 backdrop-blur-sm border-b border-orange-100 p-4 relative z-40">
         <div className="max-w-md mx-auto">
           <div className="flex items-center justify-between mb-2">
@@ -203,53 +197,54 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Chat Area - calc()で正確な高さを計算 */}
-      <div className="flex-1 h-[calc(100dvh-170px)] overflow-hidden">
+      {/* Chat Area - 改善されたスクロール実装 */}
+      <div className="flex-1 overflow-hidden">
         <div className="max-w-md mx-auto h-full flex flex-col px-4">
-          <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
-            <div className="space-y-4 py-4">
-              <AnimatePresence>
-                {messages.map((message) => (
-                  <motion.div
-                    key={message.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                    className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <Card className={`max-w-[80%] p-3 ${
-                      message.sender === 'user' 
-                        ? 'bg-warm-orange text-white' 
-                        : 'bg-white border-orange-100'
-                    }`}>
-                      <p className="text-sm leading-relaxed">{message.content}</p>
-                    </Card>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              
-              {isLoading && (
+          <div className="flex-1 overflow-y-auto py-4 space-y-4 scroll-smooth">
+            <AnimatePresence>
+              {messages.map((message) => (
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex justify-start"
+                  key={message.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <Card className="bg-white border-orange-100 p-3">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    </div>
+                  <Card className={`max-w-[80%] p-3 ${
+                    message.sender === 'user' 
+                      ? 'bg-warm-orange text-white' 
+                      : 'bg-white border-orange-100'
+                  }`}>
+                    <p className="text-sm leading-relaxed">{message.content}</p>
                   </Card>
                 </motion.div>
-              )}
-            </div>
-          </ScrollArea>
+              ))}
+            </AnimatePresence>
+            
+            {isLoading && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex justify-start"
+              >
+                <Card className="bg-white border-orange-100 p-3">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                </Card>
+              </motion.div>
+            )}
+            
+            {/* スクロール用の要素 */}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
       </div>
 
-      {/* Fixed Input Area - 高さを明確に定義 */}
+      {/* Fixed Input Area */}
       <div className="min-h-[80px] flex-shrink-0 bg-white/90 backdrop-blur-sm border-t border-orange-100 p-4 relative z-40">
         <div className="max-w-md mx-auto space-y-3">
           {/* メッセージが3往復以上、または延長モードの場合は手動完了ボタンを表示 */}
@@ -351,4 +346,4 @@ export default function ChatPage() {
       </AnimatePresence>
     </div>
   );
-} 
+}
