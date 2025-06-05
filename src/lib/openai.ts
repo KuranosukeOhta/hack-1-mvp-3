@@ -7,6 +7,20 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Helper function to extract JSON from markdown code blocks
+function extractJsonFromMarkdown(content: string): string {
+  // Remove markdown code blocks if present
+  const jsonBlockRegex = /```(?:json)?\s*([\s\S]*?)\s*```/;
+  const match = content.match(jsonBlockRegex);
+  
+  if (match) {
+    return match[1].trim();
+  }
+  
+  // If no code blocks found, return the content as is
+  return content.trim();
+}
+
 export async function sendChatMessage(messages: Message[]): Promise<string> {
   try {
     const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = messages.map(msg => ({
@@ -89,7 +103,7 @@ export async function generateDiarySummary(messages: Message[]): Promise<{
 
     const systemPrompt: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
       role: 'system',
-      content: `ユーザーとの会話から、以下の形式でJSONを生成してください：
+      content: `ユーザーとの会話から日記を生成し、JSON形式で返答してください。以下の形式に従ってください：
 
 {
   "diaryEntry": "自然な日記形式のテキスト（400字程度）",
@@ -118,7 +132,9 @@ ${profileInfo}
 - highlightsは1-3個、ユーザーが具体的に述べた出来事のみ
 - growthPointsは1-3個、ユーザーが実際に表現した気づきや学びのみ
 - 会話に出てこない情報は絶対に含めない
-- 必ず有効なJSONで返答`
+- 必ず有効なJSONで返答
+- JSONの前後にmarkdownのコードブロックや説明文は絶対に含めない
+- 純粋なJSONオブジェクトのみを返答する`
     };
 
     const completion = await openai.chat.completions.create({
@@ -132,6 +148,7 @@ ${profileInfo}
       ],
       max_tokens: 800,
       temperature: 0.3,
+      response_format: { type: "json_object" }
     });
 
     const content = completion.choices[0]?.message?.content;
@@ -139,8 +156,32 @@ ${profileInfo}
       throw new Error('AIからの返答が空でした');
     }
 
-    const result = JSON.parse(content);
-    return result;
+    // Extract JSON from markdown code blocks if present
+    const cleanContent = extractJsonFromMarkdown(content);
+    
+    try {
+      const result = JSON.parse(cleanContent);
+      
+      // Validate the required fields
+      if (!result.diaryEntry || typeof result.emotionScore !== 'number' || !Array.isArray(result.keywords)) {
+        throw new Error('Invalid response format');
+      }
+      
+      return result;
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      console.error('Raw content:', content);
+      console.error('Cleaned content:', cleanContent);
+      
+      // Return a fallback response
+      return {
+        diaryEntry: '今日も一日お疲れ様でした。振り返りの時間を大切にしていることが素晴らしいですね。',
+        emotionScore: 7,
+        keywords: ['振り返り', '成長'],
+        highlights: ['今日の体験'],
+        growthPoints: ['継続する大切さ']
+      };
+    }
   } catch (error) {
     console.error('Diary Generation Error:', error);
     throw new Error('日記の生成でエラーが発生しました。');
