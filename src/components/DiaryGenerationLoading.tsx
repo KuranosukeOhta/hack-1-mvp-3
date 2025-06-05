@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Progress } from '@/components/ui/progress';
 
 interface DiaryGenerationLoadingProps {
   isVisible: boolean;

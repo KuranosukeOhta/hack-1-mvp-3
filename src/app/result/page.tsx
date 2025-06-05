@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Trophy, Star, Heart, Clock, Tag, Lightbulb, Home } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ResultScreenData } from '@/types';
 
 export default function ResultPage() {
