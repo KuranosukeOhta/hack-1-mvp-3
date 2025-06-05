@@ -1,21 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trophy, Star, Heart, Clock, Tag, Lightbulb, Home } from 'lucide-react';
+import { Trophy, Star, Heart, Clock, Tag, Lightbulb, Home, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ResultScreenData } from '@/types';
+import html2canvas from 'html2canvas';
 
 export default function ResultPage() {
   const router = useRouter();
   const [resultData, setResultData] = useState<ResultScreenData | null>(null);
   const [showAnimation, setShowAnimation] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const captureRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const data = localStorage.getItem('diaryResult');
@@ -64,6 +67,49 @@ export default function ResultPage() {
     return '😢';
   };
 
+  const handleSaveAsImage = async () => {
+    if (!captureRef.current || !resultData) return;
+    
+    setIsGeneratingImage(true);
+    try {
+      // 現在の日付を取得
+      const today = new Date();
+      const dateString = today.toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: 'long', 
+        day: 'numeric'
+      });
+
+      const canvas = await html2canvas(captureRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2, // 高画質
+        width: 400,
+        height: 600,
+        useCORS: true,
+        allowTaint: true,
+      });
+
+      // CanvasをBlob化してダウンロード
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `今日の振り返り_${dateString.replace(/\//g, '-')}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+      });
+    } catch (error) {
+      console.error('画像保存エラー:', error);
+      alert('画像の保存に失敗しました。もう一度お試しください。');
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   return (
     <div className="h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-orange-50 mobile-safe-area">
       {/* Fixed Header */}
@@ -83,6 +129,74 @@ export default function ResultPage() {
               {resultData.sessionDuration}分間の素敵な振り返りでした
             </p>
           </motion.div>
+        </div>
+      </div>
+
+      {/* Hidden element for image capture */}
+      <div className="fixed -top-[9999px] left-0">
+        <div 
+          ref={captureRef}
+          className="w-[400px] bg-gradient-to-b from-purple-50 via-pink-50 to-orange-50 p-6"
+          style={{ 
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+          }}
+        >
+          {resultData && (
+            <>
+              {/* Header for image */}
+              <div className="text-center mb-6">
+                <div className="text-2xl mb-2">✨</div>
+                <h1 className="text-2xl font-bold text-navy-dark mb-1">今日の振り返り</h1>
+                <p className="text-sm text-gray-600">
+                  {new Date().toLocaleDateString('ja-JP', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </p>
+              </div>
+
+              {/* Score */}
+              <div className="bg-white rounded-xl p-4 mb-4 text-center shadow-sm">
+                <div className="text-4xl mb-2">{getEmotionEmoji(resultData.emotionScore)}</div>
+                <div className="text-2xl font-bold text-navy-dark mb-1">
+                  {resultData.emotionScore}/10
+                </div>
+                <div className="text-sm text-gray-600">今日の気分スコア</div>
+              </div>
+
+              {/* Keywords */}
+              <div className="bg-white rounded-xl p-4 mb-4 shadow-sm">
+                <h3 className="font-semibold text-navy-dark mb-2 flex items-center gap-1">
+                  <Tag className="w-4 h-4 text-orange-600" />
+                  キーワード
+                </h3>
+                <div className="flex flex-wrap gap-1">
+                  {resultData.keywords.map((keyword, index) => (
+                    <span key={index} className="bg-orange-100 text-orange-700 px-2 py-1 rounded-md text-xs">
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Diary */}
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <h3 className="font-semibold text-navy-dark mb-3 flex items-center gap-1">
+                  <Clock className="w-4 h-4 text-orange-600" />
+                  今日の日記
+                </h3>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {resultData.diaryEntry}
+                </p>
+              </div>
+
+              {/* Footer */}
+              <div className="text-center mt-6 pt-4 border-t border-gray-200">
+                <p className="text-xs text-gray-500">AI日記アプリで生成</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -255,14 +369,13 @@ export default function ResultPage() {
             </Button>
             
             <Button
-              onClick={() => {
-                // 日記データをクリップボードにコピー
-                navigator.clipboard.writeText(resultData.diaryEntry);
-              }}
+              onClick={handleSaveAsImage}
               variant="outline"
               className="w-full"
+              disabled={isGeneratingImage}
             >
-              日記をコピー
+              <Download className="w-4 h-4 mr-2" />
+              {isGeneratingImage ? '画像生成中...' : '画像で保存'}
             </Button>
           </motion.div>
           </div>

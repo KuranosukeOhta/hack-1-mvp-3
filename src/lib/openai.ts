@@ -74,12 +74,19 @@ export async function generateDiarySummary(messages: Message[]): Promise<{
   "growthPoints": ["成長や気づきのポイント配列"]
 }
 
+【重要な制約】：
+- 会話に含まれていない情報は一切含めないでください
+- ユーザーが明確に言及していない出来事、感情、人物は書かないでください
+- 推測や想像で内容を補完しないでください
+- 実際の会話内容のみを基に生成してください
+
 要求事項：
-- diaryEntryは温かみのある、自然な日記調で
-- emotionScoreはユーザーの全体的な気分を反映
-- keywordsは3-5個程度
-- highlightsは1-3個の印象的な出来事
-- growthPointsは1-3個の成長や学びポイント
+- diaryEntryは温かみのある、自然な日記調で、ユーザーが実際に話した内容のみを使用
+- emotionScoreはユーザーの発言と表現された気持ちのみを反映
+- keywordsは3-5個程度、会話で実際に出てきた単語やテーマのみ
+- highlightsは1-3個、ユーザーが具体的に述べた出来事のみ
+- growthPointsは1-3個、ユーザーが実際に表現した気づきや学びのみ
+- 会話に出てこない情報は絶対に含めない
 - 必ず有効なJSONで返答`
     };
 
