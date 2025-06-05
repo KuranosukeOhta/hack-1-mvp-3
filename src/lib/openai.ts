@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { Message } from '@/types';
+import { getDiariesSummary } from './diary-storage';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,6 +13,9 @@ export async function sendChatMessage(messages: Message[]): Promise<string> {
       content: msg.content,
     }));
 
+    // Get past diaries summary for context
+    const diariesSummary = getDiariesSummary();
+    
     // Add system prompt for diary conversation
     const systemPrompt: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
       role: 'system',
@@ -28,10 +32,14 @@ export async function sendChatMessage(messages: Message[]): Promise<string> {
 - 感情や気持ちを引き出す
 - 小さな成長や気づきを見つける
 
+過去の記録（参考情報）：
+${diariesSummary}
+
 話し方：
 - 親しみやすく、カジュアルなトーン
 - 相槌や共感を大切に
 - 質問は1回につき1つまで
+- 過去の記録と比較して変化や成長を認識できれば自然に言及
 - 200字以内で簡潔に返答`
     };
 

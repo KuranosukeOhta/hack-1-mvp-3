@@ -39,4 +39,20 @@ export interface ResultScreenData {
   highlights: string[];
   growthPoints: string[];
   sessionDuration: number; // minutes
+}
+
+export interface SavedDiary {
+  id: string;
+  date: string; // YYYY-MM-DD format
+  timestamp: number; // Unix timestamp
+  diaryEntry: string;
+  emotionScore: number;
+  keywords: string[];
+  highlights: string[];
+  growthPoints: string[];
+  sessionDuration: number;
+}
+
+export interface DiaryStorage {
+  diaries: SavedDiary[];
 } 

@@ -10,6 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Trophy, Star, Heart, Clock, Tag, Lightbulb, Home, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ResultScreenData } from '@/types';
+import { saveDiary } from '@/lib/diary-storage';
 import html2canvas from 'html2canvas';
 
 export default function ResultPage() {
@@ -23,7 +24,11 @@ export default function ResultPage() {
   useEffect(() => {
     const data = localStorage.getItem('diaryResult');
     if (data) {
-      setResultData(JSON.parse(data));
+      const parsedData = JSON.parse(data);
+      setResultData(parsedData);
+      
+      // 日記をローカルストレージに保存
+      saveDiary(parsedData);
     } else {
       router.push('/');
     }
