@@ -3,11 +3,15 @@
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { BookOpen, Heart, MessageCircle } from 'lucide-react';
+import { BookOpen, Heart, MessageCircle, LogIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function HomePage() {
+export default function WelcomePage() {
   const router = useRouter();
+
+  const handleLogin = () => {
+    router.push('/login');
+  };
 
   const handleStartDiary = () => {
     router.push('/chat');
@@ -38,7 +42,7 @@ export default function HomePage() {
           </motion.div>
           
           <h1 className="text-3xl font-bold text-navy-dark">
-            今日の振り返り
+            AI日記アプリ
           </h1>
           
           <p className="text-lg text-gray-600 leading-relaxed">
@@ -73,29 +77,46 @@ export default function HomePage() {
                 <BookOpen className="w-4 h-4 text-purple-600" />
               </div>
               <span className="text-gray-700">
-                自動で日記を作成
+                自動で日記を作成・保存
               </span>
             </div>
           </div>
         </Card>
 
-        {/* Start Button */}
+        {/* Login Button */}
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
           <Button
-            onClick={handleStartDiary}
+            onClick={handleLogin}
             size="lg"
             className="w-full bg-warm-orange hover:bg-warm-orange/90 text-white py-4 text-lg font-semibold rounded-xl shadow-lg"
           >
-            今日の振り返りを始める
+            <LogIn className="w-5 h-5 mr-2" />
+            始める
           </Button>
         </motion.div>
 
+        {/* Guest Access */}
+        <div className="space-y-3">
+          <p className="text-sm text-gray-500">
+            または
+          </p>
+          
+          <Button
+            onClick={handleStartDiary}
+            variant="outline"
+            size="lg"
+            className="w-full py-3 text-base"
+          >
+            ゲストとして体験する
+          </Button>
+        </div>
+
         {/* Subtitle */}
-        <p className="text-sm text-gray-500">
-          準備ができたら、上のボタンを押してください
+        <p className="text-xs text-gray-500">
+          ログインすると日記の保存・管理ができます
         </p>
       </motion.div>
     </div>

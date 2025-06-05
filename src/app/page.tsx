@@ -19,25 +19,53 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { SavedDiary } from '@/types';
 import { getAllDiaries, deleteDiary } from '@/lib/diary-storage';
+import { getAuthState, isOnboardingComplete } from '@/lib/profile-storage';
 
 export default function HomePage() {
   const router = useRouter();
   const [diaries, setDiaries] = useState<SavedDiary[]>([]);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadDiaries = () => {
-      const allDiaries = getAllDiaries();
-      setDiaries(allDiaries);
+    const checkAuthAndLoadDiaries = () => {
+      const authState = getAuthState();
       
-      // 初回ユーザーの場合はウェルカム画面を表示
-      if (allDiaries.length === 0) {
-        setShowWelcome(true);
+      // 認証されていない、またはオンボーディングが完了していない場合
+      if (!authState.isAuthenticated || !isOnboardingComplete()) {
+        router.push('/welcome');
+        return;
       }
+
+      // 認証済みユーザーの日記を読み込み
+      const loadDiaries = () => {
+        const allDiaries = getAllDiaries();
+        setDiaries(allDiaries);
+        
+        // 初回ユーザーの場合はウェルカム画面を表示
+        if (allDiaries.length === 0) {
+          setShowWelcome(true);
+        }
+      };
+
+      loadDiaries();
+      setIsLoading(false);
     };
 
-    loadDiaries();
-  }, []);
+    checkAuthAndLoadDiaries();
+  }, [router]);
+
+  // ローディング中は何も表示しない
+  if (isLoading) {
+    return (
+      <div className="h-[100dvh] bg-gradient-to-b from-orange-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-warm-orange border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleDeleteDiary = (id: string, event: React.MouseEvent) => {
     event.stopPropagation();

@@ -51,8 +51,25 @@ export interface SavedDiary {
   highlights: string[];
   growthPoints: string[];
   sessionDuration: number;
+  createdAt: string;
 }
 
 export interface DiaryStorage {
   diaries: SavedDiary[];
+}
+
+export interface UserProfile {
+  id: string;
+  nickname: string;
+  gender: string;
+  age: string;
+  occupation: string;
+  interests: string[];
+  createdAt: string;
+  isOnboardingComplete: boolean;
+}
+
+export interface AuthState {
+  isAuthenticated: boolean;
+  user: UserProfile | null;
 } 
