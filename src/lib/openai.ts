@@ -1,0 +1,110 @@
+import OpenAI from 'openai';
+import { Message } from '@/types';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export async function sendChatMessage(messages: Message[]): Promise<string> {
+  try {
+    const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = messages.map(msg => ({
+      role: msg.sender === 'user' ? 'user' : 'assistant',
+      content: msg.content,
+    }));
+
+    // Add system prompt for diary conversation
+    const systemPrompt: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
+      role: 'system',
+      content: `あなたは優しい聞き手として、ユーザーの1日の振り返りをサポートします。
+
+役割：
+- 共感的で温かい反応を示す
+- 自然な流れで質問を投げかける
+- ユーザーが話しやすい雰囲気を作る
+- アドバイスは控えめに、主に聞くことに徹する
+
+会話のゴール：
+- ユーザーの今日1日の出来事を聞き出す
+- 感情や気持ちを引き出す
+- 小さな成長や気づきを見つける
+
+話し方：
+- 親しみやすく、カジュアルなトーン
+- 相槌や共感を大切に
+- 質問は1回につき1つまで
+- 200字以内で簡潔に返答`
+    };
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [systemPrompt, ...chatMessages],
+      max_tokens: 200,
+      temperature: 0.7,
+    });
+
+    return completion.choices[0]?.message?.content || 'すみません、うまく返答できませんでした。';
+  } catch (error) {
+    console.error('OpenAI API Error:', error);
+    throw new Error('AIとの通信でエラーが発生しました。');
+  }
+}
+
+export async function generateDiarySummary(messages: Message[]): Promise<{
+  diaryEntry: string;
+  emotionScore: number;
+  keywords: string[];
+  highlights: string[];
+  growthPoints: string[];
+}> {
+  try {
+    const conversationText = messages
+      .filter(msg => msg.sender === 'user')
+      .map(msg => msg.content)
+      .join('\n');
+
+    const systemPrompt: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
+      role: 'system',
+      content: `ユーザーとの会話から、以下の形式でJSONを生成してください：
+
+{
+  "diaryEntry": "自然な日記形式のテキスト（400字程度）",
+  "emotionScore": 1-10の感情スコア（10が最高の気分）,
+  "keywords": ["今日の重要なキーワード配列"],
+  "highlights": ["今日のハイライト配列"],
+  "growthPoints": ["成長や気づきのポイント配列"]
+}
+
+要求事項：
+- diaryEntryは温かみのある、自然な日記調で
+- emotionScoreはユーザーの全体的な気分を反映
+- keywordsは3-5個程度
+- highlightsは1-3個の印象的な出来事
+- growthPointsは1-3個の成長や学びポイント
+- 必ず有効なJSONで返答`
+    };
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        systemPrompt,
+        {
+          role: 'user',
+          content: `以下の会話から日記を生成してください：\n\n${conversationText}`
+        }
+      ],
+      max_tokens: 800,
+      temperature: 0.3,
+    });
+
+    const content = completion.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('AIからの返答が空でした');
+    }
+
+    const result = JSON.parse(content);
+    return result;
+  } catch (error) {
+    console.error('Diary Generation Error:', error);
+    throw new Error('日記の生成でエラーが発生しました。');
+  }
+} 
