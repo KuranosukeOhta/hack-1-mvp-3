@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { Chrome, Mail } from 'lucide-react';
-import { getAuthState, isOnboardingComplete } from '@/lib/profile-storage';
+import { isOnboardingComplete } from '@/lib/profile-storage';
 
 export default function LoginPage() {
   const router = useRouter();

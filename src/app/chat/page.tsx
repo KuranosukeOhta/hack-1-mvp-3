@@ -98,7 +98,12 @@ export default function ChatPage() {
           sender: 'ai',
           timestamp: new Date(),
         };
-        setMessages(prev => [...prev, aiMessage]);
+        setMessages(prev => {
+          const updatedMessages = [...prev, aiMessage];
+          // 会話履歴をlocalStorageに保存
+          localStorage.setItem('lastConversation', JSON.stringify(updatedMessages));
+          return updatedMessages;
+        });
       } else {
         throw new Error(data.error);
       }
@@ -147,6 +152,10 @@ export default function ChatPage() {
       const data = await response.json();
 
       if (data.success) {
+        // セッション時間を保存
+        const actualSessionDuration = CHAT_DURATION - timeRemaining;
+        localStorage.setItem('lastSessionDuration', actualSessionDuration.toString());
+        
         // 結果をLocalStorageに保存してリザルト画面へ
         localStorage.setItem('diaryResult', JSON.stringify({
           diaryEntry: data.diaryEntry,
@@ -154,7 +163,7 @@ export default function ChatPage() {
           keywords: data.keywords,
           highlights: data.highlights,
           growthPoints: data.growthPoints,
-          sessionDuration: Math.round((CHAT_DURATION - timeRemaining) / 60),
+          sessionDuration: Math.round(actualSessionDuration / 60),
         }));
         
         // ローディング完了後にリザルト画面へ遷移

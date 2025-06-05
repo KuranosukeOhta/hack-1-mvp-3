@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trophy, Star, Heart, Clock, Tag, Lightbulb, Home, Download } from 'lucide-react';
+import { Trophy, Star, Heart, Clock, Tag, Lightbulb, Home, Download, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ResultScreenData } from '@/types';
 import { saveDiary } from '@/lib/diary-storage';
@@ -376,6 +376,15 @@ export default function ResultPage() {
             >
               <Home className="w-5 h-5 mr-2" />
               ホームに戻る
+            </Button>
+            
+            <Button
+              onClick={() => router.push('/conversation')}
+              variant="outline"
+              className="w-full border-warm-orange text-warm-orange hover:bg-warm-orange hover:text-white"
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              会話を振り返る
             </Button>
             
             <Button
