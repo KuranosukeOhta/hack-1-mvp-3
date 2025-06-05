@@ -141,9 +141,10 @@ export default function ResultPage() {
       <div className="fixed -top-[9999px] left-0">
         <div 
           ref={captureRef}
-          className="w-[400px] bg-gradient-to-b from-purple-50 via-pink-50 to-orange-50 p-6"
+          className="w-[400px] p-6"
           style={{ 
             fontFamily: 'system-ui, -apple-system, sans-serif',
+            background: 'linear-gradient(to bottom, #faf5ff, #fdf2f8, #fff7ed)',
           }}
         >
           {resultData && (
@@ -151,8 +152,8 @@ export default function ResultPage() {
               {/* Header for image */}
               <div className="text-center mb-6">
                 <div className="text-2xl mb-2">✨</div>
-                <h1 className="text-2xl font-bold text-navy-dark mb-1">今日の振り返り</h1>
-                <p className="text-sm text-gray-600">
+                <h1 className="text-2xl font-bold mb-1" style={{ color: '#2c3e50' }}>今日の振り返り</h1>
+                <p className="text-sm" style={{ color: '#6b7280' }}>
                   {new Date().toLocaleDateString('ja-JP', { 
                     year: 'numeric', 
                     month: 'long', 
@@ -162,23 +163,27 @@ export default function ResultPage() {
               </div>
 
               {/* Score */}
-              <div className="bg-white rounded-xl p-4 mb-4 text-center shadow-sm">
+              <div className="rounded-xl p-4 mb-4 text-center" style={{ backgroundColor: '#ffffff', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
                 <div className="text-4xl mb-2">{getEmotionEmoji(resultData.emotionScore)}</div>
-                <div className="text-2xl font-bold text-navy-dark mb-1">
+                <div className="text-2xl font-bold mb-1" style={{ color: '#2c3e50' }}>
                   {resultData.emotionScore}/10
                 </div>
-                <div className="text-sm text-gray-600">今日の気分スコア</div>
+                <div className="text-sm" style={{ color: '#6b7280' }}>今日の気分スコア</div>
               </div>
 
               {/* Keywords */}
-              <div className="bg-white rounded-xl p-4 mb-4 shadow-sm">
-                <h3 className="font-semibold text-navy-dark mb-2 flex items-center gap-1">
-                  <Tag className="w-4 h-4 text-orange-600" />
+              <div className="rounded-xl p-4 mb-4" style={{ backgroundColor: '#ffffff', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                <h3 className="font-semibold mb-2 flex items-center gap-1" style={{ color: '#2c3e50' }}>
+                  <Tag className="w-4 h-4" style={{ color: '#ea580c' }} />
                   キーワード
                 </h3>
                 <div className="flex flex-wrap gap-1">
                   {resultData.keywords.map((keyword, index) => (
-                    <span key={index} className="bg-orange-100 text-orange-700 px-2 py-1 rounded-md text-xs">
+                    <span 
+                      key={index} 
+                      className="px-2 py-1 rounded-md text-xs"
+                      style={{ backgroundColor: '#fed7aa', color: '#c2410c' }}
+                    >
                       {keyword}
                     </span>
                   ))}
@@ -186,19 +191,19 @@ export default function ResultPage() {
               </div>
 
               {/* Diary */}
-              <div className="bg-white rounded-xl p-4 shadow-sm">
-                <h3 className="font-semibold text-navy-dark mb-3 flex items-center gap-1">
-                  <Clock className="w-4 h-4 text-orange-600" />
+              <div className="rounded-xl p-4" style={{ backgroundColor: '#ffffff', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                <h3 className="font-semibold mb-3 flex items-center gap-1" style={{ color: '#2c3e50' }}>
+                  <Clock className="w-4 h-4" style={{ color: '#ea580c' }} />
                   今日の日記
                 </h3>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <p className="text-sm leading-relaxed" style={{ color: '#374151' }}>
                   {resultData.diaryEntry}
                 </p>
               </div>
 
               {/* Footer */}
-              <div className="text-center mt-6 pt-4 border-t border-gray-200">
-                <p className="text-xs text-gray-500">AI日記アプリで生成</p>
+              <div className="text-center mt-6 pt-4" style={{ borderTop: '1px solid #e5e7eb' }}>
+                <p className="text-xs" style={{ color: '#9ca3af' }}>AI日記アプリで生成</p>
               </div>
             </>
           )}

@@ -3,7 +3,12 @@ import { UserProfile, AuthState } from '@/types';
 const PROFILE_STORAGE_KEY = 'diary-user-profile';
 const AUTH_STORAGE_KEY = 'diary-auth-state';
 
+// ブラウザ環境でのみlocalStorageにアクセス
+const isClient = typeof window !== 'undefined';
+
 export function saveUserProfile(profile: UserProfile): void {
+  if (!isClient) return;
+  
   try {
     localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
     
@@ -20,6 +25,8 @@ export function saveUserProfile(profile: UserProfile): void {
 }
 
 export function getUserProfile(): UserProfile | null {
+  if (!isClient) return null;
+  
   try {
     const profileData = localStorage.getItem(PROFILE_STORAGE_KEY);
     if (!profileData) return null;
@@ -32,6 +39,10 @@ export function getUserProfile(): UserProfile | null {
 }
 
 export function getAuthState(): AuthState {
+  if (!isClient) {
+    return { isAuthenticated: false, user: null };
+  }
+  
   try {
     const authData = localStorage.getItem(AUTH_STORAGE_KEY);
     if (!authData) {
@@ -46,6 +57,8 @@ export function getAuthState(): AuthState {
 }
 
 export function updateUserProfile(updates: Partial<UserProfile>): void {
+  if (!isClient) return;
+  
   try {
     const currentProfile = getUserProfile();
     if (!currentProfile) {
@@ -61,6 +74,8 @@ export function updateUserProfile(updates: Partial<UserProfile>): void {
 }
 
 export function clearUserProfile(): void {
+  if (!isClient) return;
+  
   try {
     localStorage.removeItem(PROFILE_STORAGE_KEY);
     localStorage.removeItem(AUTH_STORAGE_KEY);
@@ -70,6 +85,8 @@ export function clearUserProfile(): void {
 }
 
 export function isOnboardingComplete(): boolean {
+  if (!isClient) return false;
+  
   const profile = getUserProfile();
   return profile?.isOnboardingComplete ?? false;
 }
