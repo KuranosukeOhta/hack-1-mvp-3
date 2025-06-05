@@ -49,6 +49,7 @@ export function saveDiary(resultData: ResultScreenData): SavedDiary {
     highlights: resultData.highlights,
     growthPoints: resultData.growthPoints,
     sessionDuration: resultData.sessionDuration,
+    createdAt: now.toISOString(),
   };
 
   storage.diaries.unshift(savedDiary); // 新しい日記を先頭に追加
