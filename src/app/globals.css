@@ -164,6 +164,39 @@
   }
 }
 
+/* Mobile keyboard and viewport optimization */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific optimizations */
+  html {
+    /* Prevent viewport scaling on input focus */
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  body {
+    /* Prevent rubber band scrolling */
+    overflow-x: hidden;
+    position: relative;
+  }
+}
+
+/* Prevent viewport height changes on mobile keyboard */
+@media screen and (max-width: 768px) {
+  html {
+    height: -webkit-fill-available;
+  }
+  
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Fix for mobile browsers that change vh when keyboard appears */
+  .h-\[100dvh\] {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+}
+
 /* Mobile-first animations */
 @keyframes bounce-gentle {
   0%, 100% {

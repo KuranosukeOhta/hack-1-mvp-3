@@ -182,9 +182,9 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-b from-orange-50 to-pink-50 flex flex-col mobile-safe-area">
-      {/* Fixed Header */}
-      <div className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-b border-orange-100 p-4 z-40">
+    <div className="h-[100dvh] bg-gradient-to-b from-orange-50 to-pink-50 flex flex-col">
+      {/* Fixed Header - 高さを明確に定義 */}
+      <div className="h-[90px] flex-shrink-0 bg-white/90 backdrop-blur-sm border-b border-orange-100 p-4 relative z-40">
         <div className="max-w-md mx-auto">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-lg font-semibold text-navy-dark">今日の振り返り</h1>
@@ -203,8 +203,8 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Chat Area with proper spacing */}
-      <div className="flex-1 pt-20 pb-20 overflow-hidden">
+      {/* Chat Area - calc()で正確な高さを計算 */}
+      <div className="flex-1 h-[calc(100dvh-170px)] overflow-hidden">
         <div className="max-w-md mx-auto h-full flex flex-col px-4">
           <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
             <div className="space-y-4 py-4">
@@ -249,8 +249,8 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Fixed Input Area */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-orange-100 p-4 z-40">
+      {/* Fixed Input Area - 高さを明確に定義 */}
+      <div className="min-h-[80px] flex-shrink-0 bg-white/90 backdrop-blur-sm border-t border-orange-100 p-4 relative z-40">
         <div className="max-w-md mx-auto space-y-3">
           {/* メッセージが3往復以上、または延長モードの場合は手動完了ボタンを表示 */}
           {((messages.length >= 4 && !isExtendedMode) || isExtendedMode) && isActive && (
@@ -259,19 +259,19 @@ export default function ChatPage() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
             >
-                             <Button
-                 onClick={handleFinishChat}
-                 variant={isExtendedMode ? "default" : "outline"}
-                 size="sm"
-                 className={`text-sm ${
-                   isExtendedMode 
-                     ? "bg-warm-orange hover:bg-warm-orange/90 text-white" 
-                     : "text-gray-600 border-gray-300 hover:bg-gray-50"
-                 }`}
-                 disabled={showGenerationLoading}
-               >
-                 {isExtendedMode ? "振り返りをまとめる" : "今すぐ振り返りをまとめる"}
-               </Button>
+              <Button
+                onClick={handleFinishChat}
+                variant={isExtendedMode ? "default" : "outline"}
+                size="sm"
+                className={`text-sm ${
+                  isExtendedMode 
+                    ? "bg-warm-orange hover:bg-warm-orange/90 text-white" 
+                    : "text-gray-600 border-gray-300 hover:bg-gray-50"
+                }`}
+                disabled={showGenerationLoading}
+              >
+                {isExtendedMode ? "振り返りをまとめる" : "今すぐ振り返りをまとめる"}
+              </Button>
             </motion.div>
           )}
           
